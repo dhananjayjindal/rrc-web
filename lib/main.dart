@@ -1,8 +1,16 @@
 import 'app_logger.dart';
 import 'const.dart';
+import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
 void
 main() {
+    if (kIsWeb) {
+    // ignore: undefined_prefixed_name
+    // This is safe on web
+    setUrlStrategy(
+      const HashUrlStrategy(),
+    );
+  }
   // Catch ALL uncaught async + framework errors
   runZonedGuarded<
     Future<
