@@ -83,17 +83,6 @@ buildTagChipFromContext(
       ); // Deep Red Text
       break;
 
-    case 'trending':
-      label = 'Trending 📈';
-      // Fresh Green for "Trending"
-      bgColor = const Color(
-        0xFFE8F5E9,
-      ); // Pale Green Background
-      textColor = const Color(
-        0xFF388E3C,
-      ); // Dark Green Text
-      break;
-
     case 'onsale':
     case 'on sale':
       label = 'On Sale 🏷️';
@@ -131,7 +120,7 @@ buildTagChipFromContext(
   return Chip(
     visualDensity: VisualDensity.compact,
     padding: const EdgeInsets.symmetric(
-      horizontal: 8,
+      horizontal: 0,
       vertical: 0,
     ),
     backgroundColor: bgColor,

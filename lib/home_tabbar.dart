@@ -73,49 +73,49 @@ class HomeTabBar
           )
           // 📱 PHONE → scrollable tabs
           ? 
-          // ListView.separated(
-          //     scrollDirection: Axis.horizontal,
-          //     itemCount: tabs.length,
-          //     separatorBuilder:
-          //         (
-          //           _,
-          //           __,
-          //         ) => const SizedBox(
-          //           width: 6,
-          //         ),
-          //     itemBuilder:
-          //         (
-          //           _,
-          //           i,
-          //         ) => _TabItem(
-          //           label: tabs[i],
-          //           isSelected:
-          //               selectedIndex ==
-          //               i,
-          //           onTap: () => onTap(
-          //             i,
-          //           ),
-          //           isWeb: false,
-          //         ),
-          //   )
-          Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: List.generate(
-                tabs.length,
-                (
-                  i,
-                ) => _TabItem(
-                  label: tabs[i],
-                  isSelected:
-                      selectedIndex ==
-                      i,
-                  onTap: () => onTap(
-                    i,
+          ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: tabs.length,
+              separatorBuilder:
+                  (
+                    _,
+                    _,
+                  ) => const SizedBox(
+                    width: 2,
                   ),
-                  isWeb: true,
-                ),
-              ),
+              itemBuilder:
+                  (
+                    _,
+                    i,
+                  ) => _TabItem(
+                    label: tabs[i],
+                    isSelected:
+                        selectedIndex ==
+                        i,
+                    onTap: () => onTap(
+                      i,
+                    ),
+                    isWeb: false,
+                  ),
             )
+          // Row(
+          //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          //     children: List.generate(
+          //       tabs.length,
+          //       (
+          //         i,
+          //       ) => _TabItem(
+          //         label: tabs[i],
+          //         isSelected:
+          //             selectedIndex ==
+          //             i,
+          //         onTap: () => onTap(
+          //           i,
+          //         ),
+          //         isWeb: true,
+          //       ),
+          //     ),
+          //   )
           // 🖥 WEB → evenly spaced tabs
           : Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -173,8 +173,8 @@ class _TabItem
         padding: EdgeInsets.symmetric(
           horizontal: isWeb
               ? 20
-              : 14,
-          vertical: 10,
+              : 8,
+          vertical: 4,
         ),
         decoration: BoxDecoration(
           color: isSelected
@@ -191,8 +191,8 @@ class _TabItem
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: isWeb
-                  ? 14
-                  : 13,
+                  ? 24
+                  : 15,
               fontWeight: isSelected
                   ? FontWeight.bold
                   : FontWeight.w500,

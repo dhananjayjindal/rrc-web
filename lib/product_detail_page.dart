@@ -352,6 +352,7 @@ class _ProductDetailPageState
                           context,
                         ).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
+                          color: AppConfig.blackText,
                         ),
                   ),
               ],
