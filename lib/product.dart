@@ -8,7 +8,7 @@ class Product {
   // final String imageUrl;
   final List<String> imageUrl;
   final String videoUrl;
-  final String videoType; // "drive" or "youtube"
+  // final String videoType; // "drive" or "youtube"
   // final String category;
   final List<String> tags;
 
@@ -20,7 +20,7 @@ class Product {
     required this.salePrice,
     required this.imageUrl,
     required this.videoUrl,
-    required this.videoType,
+    // required this.videoType,
     // required this.category,
     required this.tags,
   });
@@ -35,7 +35,7 @@ class Product {
       // imageUrl: map["imageUrl"] ?? "",
       imageUrl: map["imageUrl"] != null ? map["imageUrl"].toString().split(",").map((e) => e.trim()).toList() : [],
       videoUrl: map["videoUrl"] ?? "",
-      videoType: map["videoType"] ?? "drive",
+      // videoType: map["videoType"] ?? "drive",
       // category: map["category"] ?? "General",
       tags: map["tags"] != null ? map["tags"].toString().split(",").map((e) => e.trim()).toList() : [],
     );

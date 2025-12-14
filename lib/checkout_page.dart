@@ -70,7 +70,10 @@ class _CheckoutPageState
     );
     for (final it in cart.items.values) {
       b.writeln(
-        '${it.qty} × ${it.price} × ${it.name} = ₹${it.total.toStringAsFixed(2)}',
+        'ID #${it.id} × ${it.qty} × ${it.price} × ${it.name} = ₹${it.total.toStringAsFixed(2)}',
+      );
+      b.writeln(
+        '----------------------',
       );
     }
     b.writeln(

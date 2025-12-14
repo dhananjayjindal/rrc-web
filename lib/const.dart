@@ -47,21 +47,24 @@ class AppConfig {
   static const Color imageBG =  Color.fromARGB(49, 201, 201, 201);
 
 }
-
 Widget
 buildTagChipFromContext(
   BuildContext context,
   String tag,
 ) {
-  // Use the standard text theme from the context
+  final tagLower = tag.toLowerCase().trim();
+
+  // 🚫 Do not build anything for "other"
+  if (tagLower =='other') {
+    return const SizedBox.shrink();
+  }
+
   final textTheme = Theme.of(
     context,
   ).textTheme;
 
-  final tagLower = tag.toLowerCase().trim();
   String label = tag;
 
-  // Default neutral colors based on the current theme's color scheme
   Color bgColor = Theme.of(
     context,
   ).colorScheme.secondaryContainer;
@@ -70,44 +73,39 @@ buildTagChipFromContext(
   ).colorScheme.onSecondaryContainer;
   BorderSide? border;
 
-  // Define a set of vibrant, single-scheme colors
   switch (tagLower) {
     case 'hot':
       label = 'Hot 🔥';
-      // Vibrant Red/Orange for "Hot"
       bgColor = const Color(
         0xFFFFE0E0,
-      ); // Light Red Background
+      );
       textColor = const Color(
         0xFFD32F2F,
-      ); // Deep Red Text
+      );
       break;
 
     case 'onsale':
     case 'on sale':
       label = 'On Sale 🏷️';
-      // Bright Blue for "On Sale"
       bgColor = const Color(
         0xFFE3F2FD,
-      ); // Light Blue Background
+      );
       textColor = const Color(
         0xFF1976D2,
-      ); // Dark Blue Text
+      );
       break;
 
     case 'new':
       label = 'New ✨';
-      // Deep Purple for "New"
       bgColor = const Color(
         0xFFF3E5F5,
-      ); // Very Light Purple Background
+      );
       textColor = const Color(
         0xFF7B1FA2,
-      ); // Deep Purple Text
+      );
       break;
 
     default:
-      // Neutral small capsule (uses default Theme colors)
       bgColor = Theme.of(
         context,
       ).colorScheme.surfaceContainerHighest;
@@ -119,12 +117,7 @@ buildTagChipFromContext(
 
   return Chip(
     visualDensity: VisualDensity.compact,
-    padding: const EdgeInsets.symmetric(
-      horizontal: 0,
-      vertical: 0,
-    ),
     backgroundColor: bgColor,
-
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(
         8,
@@ -133,7 +126,6 @@ buildTagChipFromContext(
           border ??
           BorderSide.none,
     ),
-
     label: Text(
       label,
       style: textTheme.labelSmall?.copyWith(

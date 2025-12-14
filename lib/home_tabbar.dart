@@ -51,7 +51,7 @@ class HomeTabBar
     BuildContext context,
   ) {
     return Container(
-      height: 52,
+      height: 36,
       margin: const EdgeInsets.symmetric(
         horizontal: 16,
         vertical: 8,
@@ -174,7 +174,7 @@ class _TabItem
           horizontal: isWeb
               ? 20
               : 8,
-          vertical: 4,
+          vertical: 2,
         ),
         decoration: BoxDecoration(
           color: isSelected
