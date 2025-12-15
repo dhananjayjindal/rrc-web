@@ -1,54 +1,149 @@
 import 'app_logger.dart';
 import 'const.dart';
 
+/// ---------------------------------------------------------------------------
+/// Shared helpers (image + percent off)
+/// ---------------------------------------------------------------------------
+
+String?
+percentOff(
+  String price,
+  String salePrice,
+) {
+  try {
+    if (price.isEmpty ||
+        salePrice.isEmpty) {
+      return null;
+    }
+    final p = double.parse(
+      price,
+    );
+    final s = double.parse(
+      salePrice,
+    );
+    if (p <=
+            0 ||
+        s >=
+            p) {
+      return null;
+    }
+    return '${(((p - s) / p) * 100).round()}% OFF';
+  } catch (
+    _
+  ) {
+    return null;
+  }
+}
+
+Widget
+productImage({
+  required BuildContext context,
+  required String heroTag,
+  required String? imageUrl,
+  BorderRadiusGeometry? borderRadius,
+}) {
+  return ClipRRect(
+    borderRadius:
+        borderRadius ??
+        BorderRadius.circular(
+          14,
+        ),
+    child: Stack(
+      fit: StackFit.expand,
+      children: [
+        Container(
+          color: AppConfig.imageBG,
+        ),
+
+        Hero(
+          tag: heroTag,
+          child:
+              imageUrl !=
+                  null
+              ? appImage(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                )
+              : const Center(
+                  child: Icon(
+                    Icons.shopping_bag_outlined,
+                    size: 42,
+                  ),
+                ),
+        ),
+
+        const DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.bottomCenter,
+              end: Alignment.topCenter,
+              colors: [
+                Colors.black26,
+                Colors.transparent,
+              ],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+
+Widget
+saleBadge(
+  BuildContext context,
+  String text,
+) {
+  final textTheme = Theme.of(
+    context,
+  ).textTheme;
+  return Container(
+    padding: const EdgeInsets.symmetric(
+      horizontal: 8,
+      vertical: 5,
+    ),
+    decoration: BoxDecoration(
+      color: Theme.of(
+        context,
+      ).colorScheme.primary,
+      borderRadius: BorderRadius.circular(
+        20,
+      ),
+      boxShadow: const [
+        BoxShadow(
+          color: Colors.black26,
+          blurRadius: 6,
+          offset: Offset(
+            0,
+            2,
+          ),
+        ),
+      ],
+    ),
+    child: Text(
+      text,
+      style: textTheme.labelSmall?.copyWith(
+        color: Colors.white,
+        fontWeight: FontWeight.w700,
+      ),
+    ),
+  );
+}
+
+/// ---------------------------------------------------------------------------
+/// PRODUCT LIST CARD
+/// ---------------------------------------------------------------------------
+
 class ProductListCard
     extends
         StatelessWidget {
   final Product product;
-  // final VoidCallback? onAddToCart;
-  // final VoidCallback? onToggleWishlist;
 
   const ProductListCard({
     super.key,
     required this.product,
-    // this.onAddToCart,
-    // this.onToggleWishlist,
   });
-
-  String? _percentOff(
-    String price,
-    String salePrice,
-  ) {
-    try {
-      if (price.isEmpty ||
-          salePrice.isEmpty) {
-        return null;
-      }
-      final p = double.parse(
-        price,
-      );
-      final s = double.parse(
-        salePrice,
-      );
-      if (p <=
-              0 ||
-          s >=
-              p) {
-        return null;
-      }
-      final diff =
-          ((p -
-                      s) /
-                  p *
-                  100)
-              .round();
-      return '$diff% OFF';
-    } catch (
-      _
-    ) {
-      return null;
-    }
-  }
 
   @override
   Widget build(
@@ -57,18 +152,20 @@ class ProductListCard
     final textTheme = Theme.of(
       context,
     ).textTheme;
-    final bool hasSale = product.salePrice.isNotEmpty;
+
+    final hasSale = product.salePrice.isNotEmpty;
     final imageUrl = product.imageUrl.isNotEmpty
-        ? (product.imageUrl.first)
+        ? product.imageUrl.first
         : null;
-    final percentBadge = hasSale
-        ? _percentOff(
+    final badgeText = hasSale
+        ? percentOff(
             product.price,
             product.salePrice,
           )
         : null;
+
     return Card(
-      elevation: 3,
+      elevation: 2.5,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(
           14,
@@ -78,7 +175,7 @@ class ProductListCard
       child: InkWell(
         onTap: () {
           appLogger.i(
-            'ProductCard.onTap - productId: ${product.id} - navigating to ProductDetailPage',
+            'ProductListCard.onTap - productId: ${product.id}',
           );
           Navigator.push(
             context,
@@ -93,10 +190,10 @@ class ProductListCard
           );
         },
         child: SizedBox(
-          height: 120, // fixed card height — adjust if you want taller cards
+          height: 120,
           child: Row(
             children: [
-              // Left: image (responsive width ~ 33% of screen or fixed)
+              // IMAGE
               LayoutBuilder(
                 builder:
                     (
@@ -107,89 +204,37 @@ class ProductListCard
                         context,
                       ).size.width;
                       final imageWidth =
-                          (screenWidth >=
-                              600)
+                          screenWidth >=
+                              600
                           ? 160.0
                           : screenWidth *
                                 0.32;
+
                       return SizedBox(
                         width: imageWidth,
-                        height: double.infinity,
                         child: Stack(
                           children: [
-                            // Hero for image transition
-                            Positioned.fill(
-                              child: Hero(
-                                tag: 'product_img_${product.id}',
-                                child: Container(
-                                  // Use the background color for the container itself
-                                  color: AppConfig.imageBG,
-                                  child: ClipRRect(
-                                    borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(
-                                        14,
-                                      ),
-                                      bottomLeft: Radius.circular(
-                                        14,
-                                      ),
-                                    ),
-                                    child:
-                                        imageUrl !=
-                                            null
-                                        ? appImage(
-                                            imageUrl,
-                                            fit: BoxFit.cover,
-                                          )
-                                        : Container(
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.surfaceContainerHighest,
-                                            child: const Center(
-                                              child: Icon(
-                                                Icons.shopping_bag_outlined,
-                                                size: 42,
-                                              ),
-                                            ),
-                                          ),
-                                  ),
+                            productImage(
+                              context: context,
+                              heroTag: 'product_img_${product.id}',
+                              imageUrl: imageUrl,
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(
+                                  14,
+                                ),
+                                bottomLeft: Radius.circular(
+                                  14,
                                 ),
                               ),
                             ),
-
-                            // Top-left sale badge or percent off
-                            if (percentBadge !=
+                            if (badgeText !=
                                 null)
                               Positioned(
                                 left: 8,
                                 top: 8,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 5,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.deepPurpleAccent,
-                                    borderRadius: BorderRadius.circular(
-                                      20,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black26,
-                                        blurRadius: 6,
-                                        offset: Offset(
-                                          0,
-                                          2,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Text(
-                                    percentBadge,
-                                    style: textTheme.labelSmall?.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
+                                child: saleBadge(
+                                  context,
+                                  badgeText,
                                 ),
                               ),
                           ],
@@ -198,105 +243,85 @@ class ProductListCard
                     },
               ),
 
-              // Right: content
+              // CONTENT
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 12.0,
+                    horizontal: 12,
                     vertical: 10,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Title
+                      // TITLE
                       Text(
                         product.name,
-                        style: textTheme.titleMedium,
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
+                        style: textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          height: 1.2,
+                        ),
                       ),
                       const SizedBox(
                         height: 6,
                       ),
 
-                      // Tags (wrap, limited height)
+                      // TAGS
                       if (product.tags.isNotEmpty)
-                        Flexible(
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Wrap(
-                              spacing: 6,
-                              runSpacing: 4,
-                              children: product.tags
-                                  .take(
-                                    6,
-                                  ) // limit tags shown
-                                  .map(
-                                    (
-                                      t,
-                                    ) => buildTagChipFromContext(
-                                      context,
-                                      t,
-                                    ),
-                                  )
-                                  .toList(),
-                            ),
-                          ),
-                        )
-                      else
-                        const SizedBox.shrink(),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 4,
+                          children: product.tags
+                              .take(
+                                6,
+                              )
+                              .map(
+                                (
+                                  t,
+                                ) => buildTagChipFromContext(
+                                  context,
+                                  t,
+                                ),
+                              )
+                              .toList(),
+                        ),
 
                       const Spacer(),
 
-                      // Price row + id + wishlist
+                      // PRICE ROW
                       Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          // Price block
                           Expanded(
                             child: Row(
                               children: [
-                                if (hasSale) ...[
-                                  Text(
-                                    '₹ ${product.salePrice}',
-                                    style: textTheme.bodyLarge?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                Text(
+                                  '₹ ${hasSale ? product.salePrice : product.price}',
+                                  style: textTheme.bodyLarge?.copyWith(
+                                    fontWeight: FontWeight.w700,
                                   ),
+                                ),
+                                if (hasSale) ...[
                                   const SizedBox(
                                     width: 8,
                                   ),
                                   Text(
                                     '₹ ${product.price}',
                                     style: textTheme.bodySmall?.copyWith(
-                                      color: Colors.grey,
+                                      color: Colors.grey.shade500,
                                       decoration: TextDecoration.lineThrough,
-                                    ),
-                                  ),
-                                ] else ...[
-                                  Text(
-                                    '₹ ${product.price}',
-                                    style: textTheme.bodyLarge?.copyWith(
-                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ],
                               ],
                             ),
                           ),
-
-                          // Product id (small)
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              right: 8.0,
-                            ),
-                            child: Text(
-                              '#${product.id}',
-                              style: textTheme.bodySmall?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).hintColor,
-                              ),
+                          Text(
+                            '#${product.id}',
+                            style: textTheme.bodySmall?.copyWith(
+                              color: Theme.of(
+                                context,
+                              ).hintColor,
                             ),
                           ),
                         ],
@@ -313,62 +338,19 @@ class ProductListCard
   }
 }
 
+/// ---------------------------------------------------------------------------
+/// PRODUCT GRID CARD
+/// ---------------------------------------------------------------------------
+
 class ProductGridCard
     extends
         StatelessWidget {
   final Product product;
-  // final VoidCallback? onAddToCart;
-  // final VoidCallback? onToggleWishlist;
 
   const ProductGridCard({
     super.key,
     required this.product,
-    // this.onAddToCart,
-    // this.onToggleWishlist,
   });
-
-  String _formatPrice(
-    String price,
-  ) {
-    if (price.isEmpty) return '-';
-    return '₹ $price';
-  }
-
-  // Optional: compute percent off; returns null if not applicable
-  String? _percentOff(
-    String price,
-    String salePrice,
-  ) {
-    try {
-      if (price.isEmpty ||
-          salePrice.isEmpty) {
-        return null;
-      }
-      final p = double.parse(
-        price,
-      );
-      final s = double.parse(
-        salePrice,
-      );
-      if (p <=
-              0 ||
-          s >=
-              p) {
-        return null;
-      }
-      final diff =
-          ((p -
-                      s) /
-                  p *
-                  100)
-              .round();
-      return '$diff% OFF';
-    } catch (
-      _
-    ) {
-      return null;
-    }
-  }
 
   @override
   Widget build(
@@ -377,29 +359,30 @@ class ProductGridCard
     final textTheme = Theme.of(
       context,
     ).textTheme;
-    final bool hasSale = product.salePrice.isNotEmpty;
+
+    final hasSale = product.salePrice.isNotEmpty;
     final imageUrl = product.imageUrl.isNotEmpty
-        ? (product.imageUrl.first)
+        ? product.imageUrl.first
         : null;
-    final percentBadge = hasSale
-        ? _percentOff(
+    final badgeText = hasSale
+        ? percentOff(
             product.price,
             product.salePrice,
           )
         : null;
 
     return Card(
-      elevation: 2,
+      elevation: 2.5,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(
-          12,
+          14,
         ),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
           appLogger.i(
-            'ProductCardGrid.onTap - productId: ${product.id} - navigating to ProductDetailPage',
+            'ProductGridCard.onTap - productId: ${product.id}',
           );
           Navigator.push(
             context,
@@ -416,141 +399,78 @@ class ProductGridCard
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Image area with overlayed actions & badges
+            // IMAGE
             AspectRatio(
-              aspectRatio: 1.1, // slightly taller images for product focus
+              aspectRatio: 1.1,
               child: Stack(
                 children: [
-                  // Hero image
-                  Positioned.fill(
-                    child: Container(
-                      color: AppConfig.imageBG,
-                      child: Hero(
-                        tag: 'product_img_${product.id}',
-                        child:
-                            imageUrl !=
-                                null
-                            ? appImage(
-                                imageUrl,
-                                fit: BoxFit.contain,
-                              )
-                            : Container(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.surfaceContainerHighest,
-                                child: const Center(
-                                  child: Icon(
-                                    Icons.shopping_bag_outlined,
-                                    size: 36,
-                                  ),
-                                ),
-                              ),
-                      ),
-                    ),
+                  productImage(
+                    context: context,
+                    heroTag: 'product_img_${product.id}',
+                    imageUrl: imageUrl,
                   ),
-
-                  // Top-left sale badge or percent off
-                  if (percentBadge !=
+                  if (badgeText !=
                       null)
                     Positioned(
                       left: 8,
                       top: 8,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.deepPurpleAccent,
-                          borderRadius: BorderRadius.circular(
-                            20,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black26,
-                              blurRadius: 6,
-                              offset: Offset(
-                                0,
-                                2,
-                              ),
-                            ),
-                          ],
-                        ),
-                        child: Text(
-                          percentBadge,
-                          style: textTheme.labelSmall?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
+                      child: saleBadge(
+                        context,
+                        badgeText,
                       ),
                     ),
                 ],
               ),
             ),
 
-            // Details area
+            // DETAILS
             Padding(
               padding: const EdgeInsets.all(
-                10.0,
+                10,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Name first
                   Text(
                     product.name,
-                    style: textTheme.titleMedium,
-                    maxLines: 2,
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
+                    style: textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      height: 1.2,
+                    ),
                   ),
                   const SizedBox(
                     height: 6,
                   ),
 
-                  // Price row: sale price first (if present) then original
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Flexible(
                         child: Row(
                           children: [
-                            if (hasSale) ...[
-                              Text(
-                                _formatPrice(
-                                  product.salePrice,
-                                ),
-                                style: textTheme.bodyLarge?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            Text(
+                              '₹ ${hasSale ? product.salePrice : product.price}',
+                              style: textTheme.bodyLarge?.copyWith(
+                                fontWeight: FontWeight.w700,
                               ),
+                            ),
+                            if (hasSale) ...[
                               const SizedBox(
                                 width: 8,
                               ),
                               Text(
-                                _formatPrice(
-                                  product.price,
-                                ),
+                                '₹ ${product.price}',
                                 style: textTheme.bodySmall?.copyWith(
-                                  color: Colors.grey,
+                                  color: Colors.grey.shade500,
                                   decoration: TextDecoration.lineThrough,
-                                ),
-                              ),
-                            ] else ...[
-                              Text(
-                                _formatPrice(
-                                  product.price,
-                                ),
-                                style: textTheme.bodyLarge?.copyWith(
-                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ],
                           ],
                         ),
                       ),
-
-                      // small id
                       Text(
                         '#${product.id}',
                         style: textTheme.bodySmall?.copyWith(
@@ -562,12 +482,10 @@ class ProductGridCard
                     ],
                   ),
 
-                  const SizedBox(
-                    height: 6,
-                  ),
-
-                  // Tags (limited to avoid overflow)
-                  if (product.tags.isNotEmpty)
+                  if (product.tags.isNotEmpty) ...[
+                    const SizedBox(
+                      height: 6,
+                    ),
                     Wrap(
                       spacing: 6,
                       runSpacing: 4,
@@ -585,6 +503,7 @@ class ProductGridCard
                           )
                           .toList(),
                     ),
+                  ],
                 ],
               ),
             ),

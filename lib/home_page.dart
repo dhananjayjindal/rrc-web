@@ -106,7 +106,7 @@ class _HomePageState
     }
   }
 
-List<
+  List<
     Product
   >
   getFilteredProducts() {
@@ -250,13 +250,29 @@ List<
     BuildContext context,
   ) {
     return AppBar(
+      backgroundColor: AppConfig.blackText,
+      shape: ShapeBorder.lerp(
+        const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(
+              48,
+            ),
+          ),
+        ),
+        null,
+        0.5,
+      ),
       title: const Text(
         'Radhe Collection',
+        style: TextStyle(
+          fontSize: 20,
+        ),
       ),
       centerTitle: true,
       leading: IconButton(
-        icon: const Icon(
-          Icons.info_outline,
+        icon: Image.asset(
+          'web/RC LOGO.png',
+          height: AppConfig.homePageIconSize +16,
         ),
         onPressed: () => showAboutPopup(
           context,
@@ -267,6 +283,7 @@ List<
           icon: const Icon(
             // FIX: Replaced non-existent Icons.logs with a suitable alternative
             Icons.fact_check_outlined,
+            size: AppConfig.homePageIconSize,
           ),
           onPressed: () {
             // Keeps your existing asynchronous logic
@@ -283,6 +300,7 @@ List<
         IconButton(
           icon: const Icon(
             Icons.search,
+            size: AppConfig.homePageIconSize,
           ),
           onPressed: () {
             showSearch(
@@ -306,6 +324,7 @@ List<
                   IconButton(
                     icon: const Icon(
                       Icons.shopping_cart_outlined,
+                      size: AppConfig.homePageIconSize,
                     ),
                     onPressed: () {
                       Navigator.push(
@@ -348,6 +367,7 @@ List<
         IconButton(
           icon: const Icon(
             Icons.qr_code_rounded,
+            size: AppConfig.homePageIconSize,
           ),
           onPressed: () => showQrCodePopup(
             context,

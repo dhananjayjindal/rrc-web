@@ -212,9 +212,11 @@ class _ProductDetailPageState
           onPageChanged:
               (
                 i,
-              ) => setState(
-                () => _activeImage = i,
-              ),
+              ) {
+                setState(
+                  () => _activeImage = i,
+                );
+              },
           itemBuilder:
               (
                 _,
@@ -223,58 +225,40 @@ class _ProductDetailPageState
                 final link = _getImageLink(
                   idx,
                 );
-                return Hero(
-                  tag: 'product_img_${widget.product.id}',
-                  child:
-                      link !=
+
+                return GestureDetector(
+                  onTap:
+                      link ==
                           null
-                      ? // Wrap CachedNetworkImage in a Container to control the background
-                        GestureDetector(
-                          onTap: () {
-                            // This is the navigation logic
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (
-                                      context,
-                                    ) {
-                                      return FullScreenImageViewer(
-                                        imageUrl: link,
-                                      ); // Go to our new page
-                                    },
-                              ),
-                            );
-                          },
-                          child: Container(
-                            // Move width, height, and color to this parent Container
-                            width: double.infinity,
-                            height: expandedHeight,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.surfaceContainerHighest,
-                            child: appImage(
-                              link,
-                              fit: BoxFit.contain, // keeps your “no cropping” behavior
-                            ),
-                          ),
-                        )
-                      : Container(
-                          color: Theme.of(
+                      ? null
+                      : () {
+                          Navigator.push(
                             context,
-                          ).colorScheme.surfaceContainerHighest,
-                          child: const Center(
-                            child: Icon(
-                              Icons.broken_image,
-                              size: 56,
+                            MaterialPageRoute(
+                              builder:
+                                  (
+                                    _,
+                                  ) => FullScreenImageViewer(
+                                    imageUrl: link,
+                                  ),
                             ),
-                          ),
-                        ),
+                          );
+                        },
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: expandedHeight,
+                    child: productHeroImage(
+                      context: context,
+                      heroTag: 'product_img_${widget.product.id}',
+                      imageUrl: link,
+                      fit: BoxFit.contain, // correct for detail page
+                    ),
+                  ),
                 );
               },
         ),
 
-        // Top action buttons (back, share, wishlist)
+        // BACK BUTTON
         Positioned(
           left: 8,
           top:
@@ -282,85 +266,25 @@ class _ProductDetailPageState
                 context,
               ).padding.top +
               8,
-          child: CircleAvatar(
-            backgroundColor: Colors.black38,
-            child: IconButton(
-              icon: const Icon(
-                Icons.arrow_back,
-                color: Colors.white,
-              ),
-              onPressed: () => Navigator.pop(
-                context,
-              ),
+          child: _circleAction(
+            context,
+            icon: Icons.arrow_back,
+            onTap: () => Navigator.pop(
+              context,
             ),
           ),
         ),
 
+        // PRICE CARD
         Positioned(
           left: 16,
           bottom: 16,
-          child: Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 8,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(
-                alpha: 0.95,
-              ),
-              borderRadius: BorderRadius.circular(
-                12,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 8,
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (widget.product.salePrice.isNotEmpty)
-                  Text(
-                    '₹ ${widget.product.salePrice}',
-                    style:
-                        Theme.of(
-                          context,
-                        ).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: AppConfig.blackText,
-                        ),
-                  ),
-                if (widget.product.salePrice.isNotEmpty)
-                  Text(
-                    '₹ ${widget.product.price}',
-                    style:
-                        Theme.of(
-                          context,
-                        ).textTheme.bodySmall?.copyWith(
-                          decoration: TextDecoration.lineThrough,
-                          color: Colors.grey,
-                          decorationColor: AppConfig.lineThrough,
-                        ),
-                  ),
-                if (widget.product.salePrice.isEmpty)
-                  Text(
-                    '₹ ${widget.product.price}',
-                    style:
-                        Theme.of(
-                          context,
-                        ).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: AppConfig.blackText,
-                        ),
-                  ),
-              ],
-            ),
+          child: _priceBadge(
+            context,widget
           ),
         ),
 
-        // Page indicator (center bottom)
+        // PAGE INDICATOR
         Positioned(
           bottom: 12,
           left: 0,
@@ -403,6 +327,7 @@ class _ProductDetailPageState
         ),
       ],
     );
+
   }
 
   @override
@@ -751,44 +676,44 @@ class FullScreenImageViewer
     BuildContext context,
   ) {
     return Scaffold(
-      // Use a black background for a modal "full screen" feel
       backgroundColor: Colors.black,
-
-      // Add an AppBar with a close button
       appBar: AppBar(
         backgroundColor: Colors.black,
         elevation: 0,
-        // The default 'arrow_back' icon is fine, or use a 'close' icon
         leading: IconButton(
           icon: const Icon(
             Icons.close,
             color: Colors.white,
           ),
-          onPressed: () {
-            // Use Navigator.pop to close this screen and go back
-            Navigator.pop(
-              context,
-            );
-          },
+          onPressed: () => Navigator.pop(
+            context,
+          ),
         ),
       ),
-
-      body: Center(
-        // This is the hero widget!
-        // It enables pinch-to-zoom and panning.
-        child: InteractiveViewer(
-          panEnabled: true, // Set it to false to prevent panning.
-          minScale: 1.0,
-          maxScale: 4.0, // You can change max zoom scale
-          child: appImage(
-            imageUrl,
-            fit: BoxFit.contain,
+      body: SafeArea(
+        child: Center(
+          child: Hero(
+            tag: imageUrl, // 🔑 MUST match source Hero tag
+            child: InteractiveViewer(
+              panEnabled: true,
+              minScale: 1.0,
+              maxScale: 4.0,
+              child: Container(
+                constraints: const BoxConstraints.expand(),
+                alignment: Alignment.center,
+                child: appImage(
+                  imageUrl,
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
           ),
         ),
       ),
     );
   }
 }
+
 
 
 
@@ -900,4 +825,122 @@ class VideoPreviewButton extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget
+productHeroImage({
+  required BuildContext context,
+  required String heroTag,
+  required String? imageUrl,
+  BoxFit fit = BoxFit.cover,
+}) {
+  return Stack(
+    fit: StackFit.expand,
+    children: [
+      // consistent background
+      Container(
+        color: AppConfig.imageBG
+      ),
+
+      if (imageUrl !=
+          null)
+        Hero(
+          tag: heroTag,
+          child: appImage(
+            imageUrl,
+            fit: fit,
+          ),
+        )
+      else
+        const Center(
+          child: Icon(
+            Icons.broken_image,
+            size: 56,
+          ),
+        ),
+
+      // depth / contrast
+      // const DecoratedBox(
+      //   decoration: BoxDecoration(
+      //     gradient: LinearGradient(
+      //       begin: Alignment.bottomCenter,
+      //       end: Alignment.topCenter,
+      //       colors: [
+      //         Colors.black26,
+      //         Colors.transparent,
+      //       ],
+      //     ),
+      //   ),
+      // ),
+    ],
+  );
+}
+
+
+Widget
+_circleAction(
+  BuildContext context, {
+  required IconData icon,
+  required VoidCallback onTap,
+}) {
+  return CircleAvatar(
+    backgroundColor: Colors.black87,
+    child: IconButton(
+      icon: Icon(
+        icon,
+        color: Colors.white,
+      ),
+      onPressed: onTap,
+    ),
+  );
+}
+
+Widget
+_priceBadge(
+  BuildContext context,
+  dynamic widget,
+) {
+  final textTheme = Theme.of(
+    context,
+  ).textTheme;
+  final hasSale = widget.product.salePrice.isNotEmpty;
+
+  return Container(
+    padding: const EdgeInsets.symmetric(
+      horizontal: 12,
+      vertical: 8,
+    ),
+    decoration: BoxDecoration(
+      color: Colors.white.withValues( alpha: 0.95,),
+      borderRadius: BorderRadius.circular(
+        12,
+      ),
+      boxShadow: const [
+        BoxShadow(
+          color: Colors.black12,
+          blurRadius: 8,
+        ),
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '₹ ${hasSale ? widget.product.salePrice : widget.product.price}',
+          style: textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: AppConfig.blackText,
+          ),
+        ),
+        if (hasSale)
+          Text(
+            '₹ ${widget.product.price}',
+            style: textTheme.bodySmall?.copyWith(
+              decoration: TextDecoration.lineThrough,
+              color: Colors.grey,
+            ),
+          ),
+      ],
+    ),
+  );
 }

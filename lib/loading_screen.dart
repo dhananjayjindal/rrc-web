@@ -57,7 +57,7 @@ class _LoadingScreenState
     // Small delay to show branding / loading
     await Future.delayed(
       const Duration(
-        seconds: 1,
+        seconds: 5,
       ),
     );
 
@@ -84,7 +84,7 @@ class _LoadingScreenState
         isPhone(
           context,
         )
-        ? 36
+        ? 18
         : 48;
     final double textSize =
         isPhone(
@@ -103,30 +103,42 @@ class _LoadingScreenState
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(
-                width: indicatorSize,
-                height: indicatorSize,
-                child: const CircularProgressIndicator(
-                  strokeWidth: 3,
-                  valueColor:
-                      AlwaysStoppedAnimation<
-                        Color
-                      >(
-                        Colors.white,
-                      ),
-                ),
+              Image.asset(
+                'web/RC LOGO.png',
+                height: 300,
               ),
               const SizedBox(
                 height: 20,
               ),
-              Text(
-                'Loading your app…',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: textSize,
-                  fontWeight: FontWeight.w600,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Loading your app…  ',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: textSize,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  SizedBox(
+                    width: indicatorSize,
+                    height: indicatorSize,
+                    child: const CircularProgressIndicator(
+                      strokeWidth: 3,
+                      valueColor:
+                          AlwaysStoppedAnimation<
+                            Color
+                          >(
+                            Colors.white,
+                          ),
+                    ),
+                  ),
+                ],
               ),
               if (isWeb(
                 context,

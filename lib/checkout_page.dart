@@ -139,16 +139,48 @@ class _CheckoutPageState
     final url = 'https://wa.me/$num?text=$encoded';
 
     try {
+      // Attempt to launch the WhatsApp URL
       await launchUrlString(
         url,
         mode: LaunchMode.externalApplication,
       );
+
+      // --- SUCCESS PATH ---
+      // The code here only executes if launchUrlString succeeds.
+
+      appLogger.d(
+        'WhatsApp launched successfully. Proceeding to clear the cart.',
+      );
+
+      // Call the function to clear the cart
+      cart.clear();
+
+      // Log the successful completion
+      appLogger.d(
+        'Cart successfully cleared.',
+      );
+      appLogger.d(
+        'Moving back to Cart',
+      );
+      // Go back to the previous screen
+      Navigator.of(
+        context,
+      ).pop(); 
+      appLogger.d(
+        'Moved back to Cart',
+      );
     } catch (
       e
     ) {
+      // --- FAILURE PATH ---
+      // The code here executes if launchUrlString throws an exception (e.g., WhatsApp not installed)
+
       appLogger.e(
         'WhatsApp launch failed: $e',
       );
+
+      // CONSIDER: Showing a user-friendly error message here (e.g., a SnackBar)
+      // Example: ScaffoldMessenger.of(context).showSnackBar(...);
     }
   }
 
@@ -251,10 +283,34 @@ class _CheckoutPageState
                   const SizedBox(
                     height: 16,
                   ),
+                  // Assume 'cart' and '_sendToWhatsApp' are accessible here.
+                  // You may need to import your AppLogger class:
+                  // import 'package:your_app/utils/app_logger.dart';
                   ElevatedButton.icon(
-                    onPressed: () => _sendToWhatsApp(
-                      cart,
-                    ),
+                    onPressed: () {
+                      // 1. Log the action before sending the WhatsApp message
+                      appLogger.d(
+                        'Attempting to send order via WhatsApp...',
+                      );
+
+                      // Call the function to send the order details
+                      _sendToWhatsApp(
+                        cart,
+                      );
+
+                      // // 2. Log the action before clearing the cart
+                      // appLogger.d(
+                      //   'Order sent. Clearing the cart...',
+                      // );
+
+                      // // Call the function to clear the cart
+                      // cart.clear();
+
+                      // // 3. Log the successful completion
+                      // appLogger.d(
+                      //   'Cart successfully cleared.',
+                      // );
+                    },
                     icon: const Image(
                       image: AssetImage(
                         'web/WA.png',
@@ -407,6 +463,14 @@ buildWhatsAppMessagePreview(
             color: Colors.grey,
           ),
         ),
+        const Text(
+          '*Shipping is not included in the total amount.',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey,
+          ),
+        ),
         const SizedBox(
           height: 10,
         ),
@@ -533,9 +597,7 @@ class _BubbleTailPainter
     Size size,
   ) {
     final paint = Paint()
-      ..color = const Color(
-        0xFFE7FFDB,
-      )
+      ..color = const Color.fromARGB(255, 211, 255, 188)
       ..style = PaintingStyle.fill;
 
     final path = Path();

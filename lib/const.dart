@@ -33,7 +33,7 @@ class AppConfig {
   static const String appName = "Radhe Collection";
   static const String appVersion = "1.0.0";
 
-  static const Color loadingScreenColor = Colors.cyan;
+  static const Color loadingScreenColor = Colors.black;
   static const Color themePink = Colors.pink;
   static const Color error = Colors.red;
   static const Color lineThrough = Colors.red;
@@ -44,7 +44,9 @@ class AppConfig {
   static const Color dontKnow = Colors.orange;
   static const Color dontKnow2 = Colors.green;
   static const Color bg = Color.fromARGB(255, 3, 115, 117);
-  static const Color imageBG =  Color.fromARGB(49, 201, 201, 201);
+  static const Color imageBG =  Colors.black;
+
+  static const double homePageIconSize = 16;
 
 }
 Widget
