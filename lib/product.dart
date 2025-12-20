@@ -5,12 +5,10 @@ class Product {
   final String description;
   final String price;
   final String salePrice;
-  // final String imageUrl;
   final List<String> imageUrl;
   final String videoUrl;
-  // final String videoType; // "drive" or "youtube"
-  // final String category;
   final List<String> tags;
+  // final String category;
 
   Product({
     required this.id,
@@ -20,9 +18,8 @@ class Product {
     required this.salePrice,
     required this.imageUrl,
     required this.videoUrl,
-    // required this.videoType,
-    // required this.category,
     required this.tags,
+    // required this.category,
   });
 
   factory Product.fromMap(Map<String, dynamic> map) {
@@ -32,12 +29,10 @@ class Product {
       description: map["description"] ?? "",
       price: map["price"] ?? "",
       salePrice: map["salePrice"] ?? "",
-      // imageUrl: map["imageUrl"] ?? "",
       imageUrl: map["imageUrl"] != null ? map["imageUrl"].toString().split(",").map((e) => e.trim()).toList() : [],
       videoUrl: map["videoUrl"] ?? "",
-      // videoType: map["videoType"] ?? "drive",
-      // category: map["category"] ?? "General",
       tags: map["tags"] != null ? map["tags"].toString().split(",").map((e) => e.trim()).toList() : [],
+      // category: map["category"] ?? "General",
     );
   }
 }

@@ -4,7 +4,7 @@ import 'const.dart';
 /// ---------------------------------------------------------------------------
 /// Shared helpers (image + percent off)
 /// ---------------------------------------------------------------------------
-
+var bg = Color.fromARGB(255, 44, 43, 43);
 String?
 percentOff(
   String price,
@@ -165,8 +165,15 @@ class ProductListCard
         : null;
 
     return Card(
+      // shadowColor: Colors.white,
+      
+      color: bg,
       elevation: 2.5,
       shape: RoundedRectangleBorder(
+        side: const BorderSide(
+          color: Colors.white, // 🎯 BORDER COLOR
+          width: 1,
+        ),
         borderRadius: BorderRadius.circular(
           14,
         ),
@@ -372,8 +379,13 @@ class ProductGridCard
         : null;
 
     return Card(
+      color: bg,
       elevation: 2.5,
       shape: RoundedRectangleBorder(
+        side: const BorderSide(
+          color: Colors.white, // 🎯 BORDER COLOR
+          width: 1,
+        ),
         borderRadius: BorderRadius.circular(
           14,
         ),

@@ -62,7 +62,7 @@ class CartScreen
               height: 16,
             ),
             Text(
-              'Your cart is empty',
+              'Your cart is feeling lonely.',
               style: Theme.of(
                 context,
               ).textTheme.titleLarge,
@@ -71,7 +71,7 @@ class CartScreen
               height: 8,
             ),
             Text(
-              'Looks like you haven\'t added anything yet.',
+              'Maybe add something nice.',
               textAlign: TextAlign.center,
               style:
                   Theme.of(

@@ -43,7 +43,8 @@ class AppConfig {
   static const Color blackText = Colors.black;
   static const Color dontKnow = Colors.orange;
   static const Color dontKnow2 = Colors.green;
-  static const Color bg = Color.fromARGB(255, 3, 115, 117);
+  // static const Color bg = Color.fromARGB(255, 3, 115, 117);
+  static const Color bg = Color.fromRGBO(38, 41, 41, 1);
   static const Color imageBG =  Colors.black;
 
   static const double homePageIconSize = 16;

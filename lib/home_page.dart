@@ -106,13 +106,35 @@ class _HomePageState
     }
   }
 
+  bool hasTag(
+    Product p,
+    String tag,
+  ) {
+    return p.tags.any(
+      (
+        t,
+      ) =>
+          t.trim().toLowerCase() ==
+          tag.toLowerCase(),
+    );
+  }
+
   List<
     Product
   >
   getFilteredProducts() {
+    appLogger.d(
+      products
+          .map(
+            (
+              p,
+            ) => p.tags,
+          )
+          .toList(),
+    );
+
     switch (selectedTab) {
       case 1:
-        // LOG: Log for 'New Arrivals'
         appLogger.d(
           "getFilteredProducts: Returning 'New' tag products (Tab 1)",
         );
@@ -120,13 +142,14 @@ class _HomePageState
             .where(
               (
                 p,
-              ) => p.tags.contains(
-                'New',
+              ) => hasTag(
+                p,
+                'new',
               ),
             )
             .toList();
+
       case 2:
-        // LOG: Log for 'Hot Products'
         appLogger.d(
           "getFilteredProducts: Returning 'Hot' tag products (Tab 2)",
         );
@@ -134,13 +157,14 @@ class _HomePageState
             .where(
               (
                 p,
-              ) => p.tags.contains(
-                'Hot',
+              ) => hasTag(
+                p,
+                'hot',
               ),
             )
             .toList();
+
       case 3:
-        // LOG: Log for 'On Sale'
         appLogger.d(
           "getFilteredProducts: Returning 'OnSale' tag products (Tab 3)",
         );
@@ -148,13 +172,14 @@ class _HomePageState
             .where(
               (
                 p,
-              ) => p.tags.contains(
-                'OnSale',
+              ) => hasTag(
+                p,
+                'onsale',
               ),
             )
             .toList();
+
       default:
-        // LOG: Log for the default case (usually 'All Products')
         appLogger.d(
           "getFilteredProducts: Returning ALL products (Default Tab)",
         );
@@ -182,7 +207,7 @@ class _HomePageState
     final filtered = getFilteredProducts();
 
     return Scaffold(
-      backgroundColor: AppConfig.bg,
+      // backgroundColor: AppConfig.bg,
       appBar: _buildAppBar(
         context,
       ),
@@ -251,6 +276,7 @@ class _HomePageState
   ) {
     return AppBar(
       backgroundColor: AppConfig.blackText,
+      centerTitle: true,
       shape: ShapeBorder.lerp(
         const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
@@ -268,25 +294,23 @@ class _HomePageState
           fontSize: 20,
         ),
       ),
-      centerTitle: true,
+
       leading: IconButton(
         icon: Image.asset(
           'web/RC LOGO.png',
-          height: AppConfig.homePageIconSize +16,
+          height:
+              AppConfig.homePageIconSize +
+              16,
         ),
         onPressed: () => showAboutPopup(
           context,
         ),
       ),
+
       actions: [
-        IconButton(
-          icon: const Icon(
-            // FIX: Replaced non-existent Icons.logs with a suitable alternative
-            Icons.fact_check_outlined,
-            size: AppConfig.homePageIconSize,
-          ),
-          onPressed: () {
-            // Keeps your existing asynchronous logic
+        appBarIcon(
+          icon: Icons.fact_check_outlined,
+          onTap: () {
             sheets.fetchUpdateLogs().then(
               (
                 logs,
@@ -297,12 +321,10 @@ class _HomePageState
             );
           },
         ),
-        IconButton(
-          icon: const Icon(
-            Icons.search,
-            size: AppConfig.homePageIconSize,
-          ),
-          onPressed: () {
+
+        appBarIcon(
+          icon: Icons.search,
+          onTap: () {
             showSearch(
               context: context,
               delegate: ProductSearchDelegate(
@@ -311,6 +333,7 @@ class _HomePageState
             );
           },
         ),
+
         Consumer<
           Cart
         >(
@@ -318,15 +341,12 @@ class _HomePageState
               (
                 _,
                 cart,
-                _,
+                __,
               ) => Stack(
                 children: [
-                  IconButton(
-                    icon: const Icon(
-                      Icons.shopping_cart_outlined,
-                      size: AppConfig.homePageIconSize,
-                    ),
-                    onPressed: () {
+                  appBarIcon(
+                    icon: Icons.shopping_cart_outlined,
+                    onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -338,11 +358,12 @@ class _HomePageState
                       );
                     },
                   ),
+
                   if (cart.itemCount >
                       0)
                     Positioned(
-                      right: 6,
-                      top: 6,
+                      right: 2,
+                      top: 2,
                       child: Container(
                         padding: const EdgeInsets.all(
                           4,
@@ -355,7 +376,7 @@ class _HomePageState
                           cart.itemCount.toString(),
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 12,
+                            fontSize: 10,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -364,17 +385,16 @@ class _HomePageState
                 ],
               ),
         ),
-        IconButton(
-          icon: const Icon(
-            Icons.qr_code_rounded,
-            size: AppConfig.homePageIconSize,
-          ),
-          onPressed: () => showQrCodePopup(
+
+        appBarIcon(
+          icon: Icons.qr_code_rounded,
+          onTap: () => showQrCodePopup(
             context,
           ),
         ),
+
         const SizedBox(
-          width: 8,
+          width: 6,
         ),
       ],
     );
@@ -393,6 +413,7 @@ class _HomePageState
     if (list.isEmpty) {
       return _buildEmptyState(
         context,
+        list,
       );
     }
 
@@ -413,21 +434,42 @@ class _HomePageState
 
   Widget _buildEmptyState(
     BuildContext context,
+    List<
+      Product
+    >
+    filtered,
   ) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
-            Icons.inventory_2_outlined,
-            size: 80,
-          ),
-          const SizedBox(
-            height: 12,
-          ),
-          const Text(
-            'No products',
-          ),
+          if (filtered.isEmpty) ...[
+            if (selectedTab ==
+                1)
+              _EmptyTextBox(
+                icon: Icons.inventory_2_outlined,
+                title: "Nothing new here… yet 👀",
+                subtitle: "Our next drop is loading faster than light. Stay tuned.",
+              )
+            else if (selectedTab ==
+                2)
+              _EmptyTextBox(
+                icon: Icons.inventory_2_outlined,
+                title: "No trends detected.",
+                subtitle: "Either everything is underrated… or this page broke the algorithm.",
+              )
+            else if (selectedTab ==
+                3)
+              _EmptyTextBox(
+                icon: Icons.inventory_2_outlined,
+                title: "This page fell into a black hole.",
+                subtitle: "No discounts survived. Try again soon.",
+              ),
+          ],
+
+          // const Text(
+          //   'Oops! Nothing Here 😢',
+          // ),
           const SizedBox(
             height: 12,
           ),
@@ -578,5 +620,132 @@ showUpdateLogsPopup(
                 ],
           );
         },
+  );
+}
+
+class _EmptyTextBox
+    extends
+        StatelessWidget {
+  final String title;
+  final String subtitle;
+  final IconData? icon;
+
+  const _EmptyTextBox({
+    required this.title,
+    required this.subtitle,
+    this.icon,
+  });
+
+  @override
+  Widget build(
+    BuildContext context,
+  ) {
+    final textTheme = Theme.of(
+      context,
+    ).textTheme;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 20,
+        vertical: 24,
+      ),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(
+          20,
+        ),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(
+            18,
+          ),
+          gradient: LinearGradient(
+            colors: [
+              Colors.white.withValues(
+                alpha: 0.08,
+              ),
+              Colors.white.withValues(
+                alpha: 0.03,
+              ),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          border: Border.all(
+            color: Colors.white.withValues(
+              alpha: 0.12,
+            ),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(
+                alpha: 0.25,
+              ),
+              blurRadius: 18,
+              offset: const Offset(
+                0,
+                8,
+              ),
+            ),
+          ],
+        ),
+        child: Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (icon !=
+                  null)
+                Padding(
+                  padding: const EdgeInsets.only(
+                    bottom: 6,
+                  ),
+                  child: Icon(
+                    icon,
+                    size: 80,
+                    color: Colors.white70,
+                  ),
+                ),
+              Text(
+                title,
+                style: textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                  height: 1.2,
+                ),
+              ),
+              const SizedBox(
+                height: 8,
+              ),
+              Text(
+                subtitle,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: Colors.white70,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+Widget
+appBarIcon({
+  required IconData icon,
+  required VoidCallback onTap,
+}) {
+  return InkResponse(
+    onTap: onTap,
+    radius: 16,
+    child: Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 8,
+      ), // 🔥 control gap HERE
+      child: Icon(
+        icon,
+        size: AppConfig.homePageIconSize,
+      ),
+    ),
   );
 }

@@ -1,5 +1,7 @@
 import 'const.dart';
 import 'app_logger.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+
 
 /// Ensure `sheets` is available in this scope (defined in constants.dart)
 final sheets = SheetsApi(
@@ -69,23 +71,11 @@ showAboutPopup(
               ),
             ),
             backgroundColor: colorScheme.surface,
-            titlePadding: const EdgeInsets.fromLTRB(
-              24,
-              20,
-              24,
-              8,
-            ),
-            contentPadding: const EdgeInsets.fromLTRB(
-              24,
-              8,
-              24,
-              20,
-            ),
-            actionsPadding: const EdgeInsets.only(
-              bottom: 12,
-              right: 8,
-            ),
+            // FIX 1: Add scrollable to help with internal hit-testing
+            scrollable: true,
             title: Row(
+              // Ensure the title Row doesn't try to be infinite
+              mainAxisSize: MainAxisSize.min,
               children: [
                 CircleAvatar(
                   radius: 22,
@@ -98,60 +88,119 @@ showAboutPopup(
                 const SizedBox(
                   width: 12,
                 ),
-                Text(
-                  'Radhe Collection',
-                  style: textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
+                // Use Flexible to prevent the text from breaking the hit-test area
+                Flexible(
+                  child: Text(
+                    'Radhe Collection',
+                    style: textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
             ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Divider(),
-                const SizedBox(
-                  height: 8,
-                ),
-                _infoRow(
-                  Icons.person_outline,
-                  'Developer',
-                  devName!,
-                  textTheme,
-                  colorScheme,
-                ),
-                _infoRow(
-                  Icons.update_outlined,
-                  'Last Updated',
-                  lastUpdated!,
-                  textTheme,
-                  colorScheme,
-                ),
-                // _infoRow(Icons.numbers, 'Version', version, textTheme, colorScheme),
-                const SizedBox(
-                  height: 12,
-                ),
-                Center(
-                  child: Text(
-                    '© 2025 All rights reserved.',
-                    style: textTheme.bodySmall?.copyWith(
-                      color: colorScheme.outline,
+            content: SizedBox(
+              // FIX 2: Provide a concrete width constraint to the Dialog content
+              width:
+                  MediaQuery.of(
+                    context,
+                  ).size.width *
+                  0.8,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Divider(),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  Row(
+                    children: [
+                      // Wrap your infoRow if it uses Expanded inside
+                      Flexible(
+                        child: _infoRow(
+                          Icons.person_outline,
+                          'Developer',
+                          devName!,
+                          textTheme,
+                          colorScheme,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 8,
+                      ),
+                      IconButton(
+                        constraints: const BoxConstraints(),
+                        padding: EdgeInsets.zero,
+                        onPressed: () async {
+                          const String instaUrl = 'https://www.instagram.com/i.d.j._';
+                          try {
+                            await launchUrlString(
+                              instaUrl,
+                              mode: LaunchMode.externalApplication,
+                            );
+                            appLogger.d(
+                              'Opening Instagram Profile',
+                            );
+                          } catch (
+                            e
+                          ) {
+                            appLogger.e(
+                              'Could not launch Instagram: $e',
+                            );
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(
+                                context,
+                              ).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Could not open Instagram',
+                                  ),
+                                ),
+                              );
+                            }
+                          }
+                        },
+                        icon: const Icon(
+                          LucideIcons.instagram,
+                          color: Colors.pink,
+                          size: 20,
+                        ),
+                        tooltip: 'Visit Instagram',
+                      ),
+                    ],
+                  ),
+                  _infoRow(
+                    Icons.update_outlined,
+                    'Last Updated',
+                    lastUpdated!,
+                    textTheme,
+                    colorScheme,
+                  ),
+                  const SizedBox(
+                    height: 12,
+                  ),
+                  Center(
+                    child: Text(
+                      '© 2025 All rights reserved.',
+                      style: textTheme.bodySmall?.copyWith(
+                        color: colorScheme.outline,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(
-                  height: 12,
-                ),
-                Center(
-                  child: Text(
-                    'Made with ❤️ in India',
-                    style: textTheme.bodySmall?.copyWith(
-                      color: colorScheme.outline,
+                  const SizedBox(
+                    height: 12,
+                  ),
+                  Center(
+                    child: Text(
+                      'Made with ❤️ in India',
+                      style: textTheme.bodySmall?.copyWith(
+                        color: colorScheme.outline,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             actions: [
               Center(
@@ -162,17 +211,9 @@ showAboutPopup(
                   label: const Text(
                     'Close',
                   ),
-                  style: TextButton.styleFrom(
-                    foregroundColor: colorScheme.primary,
-                  ),
-                  onPressed: () {
-                    appLogger.i(
-                      'showAboutPopup - closed',
-                    );
-                    Navigator.of(
-                      context,
-                    ).pop();
-                  },
+                  onPressed: () => Navigator.of(
+                    context,
+                  ).pop(),
                 ),
               ),
             ],
